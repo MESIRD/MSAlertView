@@ -12,7 +12,8 @@ typedef void (^ButtonCallBackBlock)();
 
 @interface MSAlertButtonModel : NSObject
 
-@property (nonatomic, copy) NSString *title;
-@property (nonatomic, copy) ButtonCallBackBlock callBackBlock;
+@property (nonatomic, assign) BOOL                isCancelButton;
+@property (nonatomic, copy)   NSString            *title;
+@property (nonatomic, copy)   ButtonCallBackBlock callBackBlock;
 
 @end

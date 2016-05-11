@@ -8,10 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-typedef NS_OPTIONS(NSUInteger, AlertViewType) {
-    AlertViewTypeInfo      = 1 << 0,    //display title with content and ok button
-    AlertViewTypeSelection = 1 << 1,    //display title with ok and other buttons
-    AlertViewTypeInput     = 1 << 2     //display title with input field and ok button
+typedef NS_ENUM(NSUInteger, AlertViewType) {
+    AlertViewTypeInfo      = 0,    //display title with content and buttons
+    AlertViewTypeInput     = 1     //display title with input field and buttons
 };
 
 @class MSAlertView;
@@ -24,7 +23,9 @@ typedef NS_OPTIONS(NSUInteger, AlertViewType) {
 
 @interface MSAlertView : UIView
 
-- (instancetype)initWithTitle:(NSString *)title content:(NSString *)content andCancelButtonTitle:(NSString *)cancelButtonTitle;
+@property (nonatomic, weak) id<MSAlertViewDelegate> delegate;
+
+- (instancetype)initWithDelegate:(id)delegate title:(NSString *)title content:(NSString *)content cancelButtonTitle:(NSString *)cancelButtonTitle andOtherButtonTitles:(NSString *)otherButtonTitles, ...;
 
 - (void)show;
 
