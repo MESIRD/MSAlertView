@@ -16,5 +16,6 @@
 #define SCREEN_WIDTH    [UIScreen mainScreen].bounds.size.width
 #define SCREEN_HEIGHT   [UIScreen mainScreen].bounds.size.height
 
+#define COLOR_OF_RGBA(R,G,B,A)   [UIColor colorWithRed:R/255 green:G/255 blue:B/255 alpha:A/255];
 
 #endif /* MSAlertViewPrefix_pch */

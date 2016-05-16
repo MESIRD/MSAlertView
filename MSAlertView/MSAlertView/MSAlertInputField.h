@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MSAlertInputField : UIView
+@interface MSAlertInputField : UITextField
+
+- (instancetype)initWithFrame:(CGRect)frame andPlaceholder:(NSString *)placeholder;
 
 @end

@@ -8,9 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSUInteger, AlertViewType) {
-    AlertViewTypeInfo      = 0,    //display title with content and buttons
-    AlertViewTypeInput     = 1     //display title with input field and buttons
+typedef NS_ENUM(NSUInteger, MSAlertViewType) {
+    MSAlertViewTypeInfo      = 0,    //display title with content and buttons
+    MSAlertViewTypeInput     = 1     //display title with input field and buttons
 };
 
 @class MSAlertView;
@@ -25,7 +25,7 @@ typedef NS_ENUM(NSUInteger, AlertViewType) {
 
 @property (nonatomic, weak) id<MSAlertViewDelegate> delegate;
 
-- (instancetype)initWithDelegate:(id)delegate title:(NSString *)title content:(NSString *)content cancelButtonTitle:(NSString *)cancelButtonTitle andOtherButtonTitles:(NSString *)otherButtonTitles, ...;
+- (instancetype)initWithDelegate:(id<MSAlertViewDelegate>)delegate title:(NSString *)title content:(NSString *)content cancelButtonTitle:(NSString *)cancelButtonTitle otherButtonTitles:(NSString *)otherButtonTitles, ...;
 
 - (void)show;
 

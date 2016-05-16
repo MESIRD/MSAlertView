@@ -10,4 +10,14 @@
 
 @implementation MSAlertButtonModel
 
+- (instancetype)initWithTitle:(NSString *)title callbackBlock:(ButtonCallbackBlock)callbackBlock andIsCancelButton:(BOOL)isCancelButton {
+    
+    if ( self = [super init]) {
+        self.title = title;
+        self.callbackBlock = callbackBlock;
+        self.isCancelButton = isCancelButton;
+    }
+    return self;
+}
+
 @end

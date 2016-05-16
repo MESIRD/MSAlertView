@@ -10,7 +10,7 @@
 
 @interface MSAlertInputModel : NSObject
 
-@property (nonatomic, copy) NSString *placeHolder;
+@property (nonatomic, copy) NSString *placeholder;
 @property (nonatomic, copy) NSString *inputValue;
 @property (nonatomic, copy) NSString *inputKey;
 

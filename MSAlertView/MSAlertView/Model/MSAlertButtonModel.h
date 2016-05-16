@@ -8,12 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^ButtonCallBackBlock)();
+typedef void (^ButtonCallbackBlock)();
 
 @interface MSAlertButtonModel : NSObject
 
 @property (nonatomic, assign) BOOL                isCancelButton;
 @property (nonatomic, copy)   NSString            *title;
-@property (nonatomic, copy)   ButtonCallBackBlock callBackBlock;
+@property (nonatomic, copy)   ButtonCallbackBlock callbackBlock;
+
+- (instancetype)initWithTitle:(NSString *)title callbackBlock:(ButtonCallbackBlock)callbackBlock andIsCancelButton:(BOOL)isCancelButton;
 
 @end
