@@ -31,6 +31,8 @@ typedef NS_OPTIONS(NSInteger, MSAlertViewComponent) {
 @property (nonatomic, strong) UIView         *bottomView;
 @property (nonatomic, strong) NSMutableArray *buttonArray;
 
+@property (nonatomic, strong) UIView *maskView;
+
 // data sources
 @property (nonatomic, strong) NSString *title;
 @property (nonatomic, strong) NSString *content;
@@ -110,7 +112,6 @@ static const CGFloat kButtonHeight = 32.0f;
     _components = 0;
     _buttonModels = [[NSMutableArray alloc] init];
     _inputModels = [[NSMutableArray alloc] init];
-    
 }
 
 - (void)initializeUI {
@@ -168,7 +169,21 @@ static const CGFloat kButtonHeight = 32.0f;
     }
     
     if ( _components & MSAlertViewComponentButton) {
-        
+        if ( !_bottomView) {
+            _bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(self.frame), CGRectGetWidth(self.frame), kButtonHeight)];
+            [self addSubview:_bottomView];
+        }
+        if ( !_buttonModels && _buttonModels.count > 0) {
+            CGFloat buttonWidth = CGRectGetWidth(self.frame) / _buttonModels.count;
+            [_buttonModels enumerateObjectsUsingBlock:^(MSAlertButtonModel * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSAttributedString *attributedTitle = [[NSAttributedString alloc] initWithString:_buttonModels[idx].title attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.0f], NSForegroundColorAttributeName:[UIColor whiteColor]}];
+                UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(idx * buttonWidth, 0, buttonWidth, kButtonHeight)];
+                button.tag = idx;
+                [button setAttributedTitle:attributedTitle forState:UIControlStateNormal];
+                [button addTarget:self action:@selector(bottomButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+                [_bottomView addSubview:button];
+            }];
+        }
     }
     
 }
@@ -194,6 +209,14 @@ static const CGFloat kButtonHeight = 32.0f;
         height += _buttonModels && _buttonModels.count > 0 ? kButtonHeight : 0;
     }
     return height;
+}
+
+- (void)bottomButtonPressed:(UIButton *)sender {
+    
+    if ( self.delegate && [self.delegate respondsToSelector:@selector(alertView:didPressedOnButton:)]) {
+        [self.delegate performSelector:@selector(alertView:didPressedOnButton:) withObject:self withObject:@{}];
+    }
+    
 }
 
 @end

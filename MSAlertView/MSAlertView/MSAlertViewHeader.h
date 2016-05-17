@@ -9,5 +9,6 @@
 #ifndef MSAlertViewHeader_h
 #define MSAlertViewHeader_h
 
+#import "MSAlertView.h"
 
 #endif /* MSAlertViewHeader_h */

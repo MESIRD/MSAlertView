@@ -158,13 +158,12 @@
 		D7EE03B31CE0F28C00484DB2 /* MSAlertView */ = {
 			isa = PBXGroup;
 			children = (
+				F582767A1CEADBC500AA9524 /* View */,
 				D7EE03BC1CE103EE00484DB2 /* Model */,
 				D7EE03B71CE0F2BC00484DB2 /* MSAlertViewPrefix.pch */,
 				D7EE03B81CE0F2DD00484DB2 /* MSAlertViewHeader.h */,
 				D7EE03B41CE0F2A900484DB2 /* MSAlertView.h */,
 				D7EE03B51CE0F2A900484DB2 /* MSAlertView.m */,
-				D7EE03B91CE0FB6600484DB2 /* MSAlertInputField.h */,
-				D7EE03BA1CE0FB6600484DB2 /* MSAlertInputField.m */,
 			);
 			name = MSAlertView;
 			sourceTree = "<group>";
@@ -178,6 +177,15 @@
 				D7EE03C11CE104C700484DB2 /* MSAlertButtonModel.m */,
 			);
 			name = Model;
+			sourceTree = "<group>";
+		};
+		F582767A1CEADBC500AA9524 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				D7EE03B91CE0FB6600484DB2 /* MSAlertInputField.h */,
+				D7EE03BA1CE0FB6600484DB2 /* MSAlertInputField.m */,
+			);
+			name = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -458,7 +466,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = /Users/mesird/Documents/Xcode_Workspace/Widget/MSAlertView/MSAlertView/MSAlertView/MSAlertViewPrefix.pch;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/MSAlertView/MSAlertView/MSAlertViewPrefix.pch";
 				INFOPLIST_FILE = MSAlertView/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mesird.MSAlertView;
@@ -471,7 +479,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = /Users/mesird/Documents/Xcode_Workspace/Widget/MSAlertView/MSAlertView/MSAlertView/MSAlertViewPrefix.pch;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/MSAlertView/MSAlertView/MSAlertViewPrefix.pch";
 				INFOPLIST_FILE = MSAlertView/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mesird.MSAlertView;
@@ -544,6 +552,7 @@
 				D7EE03AC1CE0F28000484DB2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D7EE03AD1CE0F28000484DB2 /* Build configuration list for PBXNativeTarget "MSAlertViewTests" */ = {
 			isa = XCConfigurationList;
@@ -552,6 +561,7 @@
 				D7EE03AF1CE0F28000484DB2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D7EE03B01CE0F28000484DB2 /* Build configuration list for PBXNativeTarget "MSAlertViewUITests" */ = {
 			isa = XCConfigurationList;
@@ -560,6 +570,7 @@
 				D7EE03B21CE0F28000484DB2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
