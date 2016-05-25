@@ -34,7 +34,7 @@
 
 - (void)tapOnButton:(UIButton *)sender {
     
-    MSAlertView *alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph" cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
+    MSAlertView *alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph" cancelButtonTitle:nil otherButtonTitles:nil];
     [alertView show];
 }
 

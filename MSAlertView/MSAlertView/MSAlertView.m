@@ -113,24 +113,31 @@ static const CGFloat kButtonHeight = 32.0f;
 
 - (void)show {
     
-    _contentView.layer.contentsScale = 0.0f;
+    CGRect frame = _contentView.frame;
+    _contentView.frame = CGRectMake((CGRectGetMinX(frame) + CGRectGetMaxX(frame))/2, (CGRectGetMinY(frame) + CGRectGetMaxY(frame))/2, 0, 0);
     
     UIWindow *currentWindow = [[UIApplication sharedApplication] keyWindow] ? [[UIApplication sharedApplication] keyWindow] : [[[UIApplication sharedApplication] windows] firstObject];
     [currentWindow addSubview:self];
     
     [UIView animateWithDuration:kAnimationTimeInterval animations:^{
         _maskView.layer.opacity = 1.0f;
-        _contentView.layer.contentsScale = 1.0f;
+        _contentView.frame = frame;
     } completion:^(BOOL finished) {
-        
+        if ( !_buttonModels || _buttonModels.count == 0) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self hide];
+            });
+        }
     }];
 }
 
 - (void)hide {
     
+    CGRect frame = _contentView.frame;
+    
     [UIView animateWithDuration:kAnimationTimeInterval animations:^{
         _maskView.layer.opacity = 0.0f;
-        _contentView.layer.contentsScale = 0.0f;
+        _contentView.frame = CGRectMake((CGRectGetMinX(frame) + CGRectGetMaxX(frame))/2, (CGRectGetMinY(frame) + CGRectGetMaxY(frame))/2, 0, 0);
     } completion:^(BOOL finished) {
         [self removeFromSuperview];
     }];
@@ -172,6 +179,7 @@ static const CGFloat kButtonHeight = 32.0f;
     
     // content width
     CGFloat contentWidth = SCREEN_WIDTH - kLeftMargin - kRightMargin;
+    contentWidth = contentWidth > 300 ? 300 : contentWidth;
     
     if ( _components & MSAlertViewComponentTitle) {
         if ( !_titleView) {
@@ -237,13 +245,18 @@ static const CGFloat kButtonHeight = 32.0f;
                     [button setBackgroundColor:COLOR_OF_RGBA(35.0f, 220.0f, 151.0f, 1.0f)];
                 }
                 [_bottomView addSubview:button];
+                if ( idx > 0) {
+                    UIView *separator = [[UIView alloc] initWithFrame:CGRectMake(idx * buttonWidth, 0, 0.5f, kButtonHeight)];
+                    separator.backgroundColor = [UIColor whiteColor];
+                    [_bottomView addSubview:separator];
+                }
             }];
         }
     }
     
     // reset content frame
     CGFloat contentHeight = [self getContentHeight];
-    _contentView.frame = CGRectMake(kLeftMargin, (SCREEN_HEIGHT - contentHeight) / 2, contentWidth, contentHeight);
+    _contentView.frame = CGRectMake((SCREEN_WIDTH - contentWidth) / 2, (SCREEN_HEIGHT - contentHeight) / 2, contentWidth, contentHeight);
 }
 
 - (CGFloat)getContentHeight {
