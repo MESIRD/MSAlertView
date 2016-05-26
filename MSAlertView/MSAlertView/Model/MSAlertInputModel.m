@@ -10,4 +10,14 @@
 
 @implementation MSAlertInputModel
 
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+    
+    if ( self = [super init]) {
+        self.placeholder = dictionary[@"placeholder"];
+        self.inputKey = dictionary[@"inputKey"];
+        self.inputValue = dictionary[@"inputValue"];
+    }
+    return self;
+}
+
 @end

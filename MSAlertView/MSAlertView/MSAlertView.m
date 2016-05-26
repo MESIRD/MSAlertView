@@ -111,6 +111,37 @@ static const CGFloat kButtonHeight = 32.0f;
     return self;
 }
 
+- (MSAlertInputField *)appendInputWithPlaceholder:(NSString *)placeholder delegate:(id)delegate {
+    
+    CGFloat originY = _inputFieldArray && _inputFieldArray.count > 0 ? CGRectGetMaxY(_inputFieldArray[_inputFieldArray.count-1].frame) + 1.0f : (_components & MSAlertViewComponentContent ? CGRectGetMaxY(_contentTextView.frame) : CGRectGetMinY(_centerView.frame));
+    MSAlertInputField *inputField = [[MSAlertInputField alloc] initWithFrame:CGRectMake(0, originY, CGRectGetWidth(_contentView.frame), kInputHeight) andPlaceholder:placeholder];
+    if ( delegate) {
+        inputField.delegate = delegate;
+    }
+    [_inputModels addObject:[[MSAlertInputModel alloc] initWithDictionary:@{@"placeholder":placeholder}]];
+    [_inputFieldArray addObject:inputField];
+    [_centerView addSubview:inputField];
+    _components |= MSAlertViewComponentInput;
+    
+    [self resizeUIAfterAppendingInputField];
+    
+    return inputField;
+}
+
+- (void)resizeUIAfterAppendingInputField {
+    
+    // content view
+    CGFloat contentHeight = [self getContentHeight];
+    _contentView.frame = CGRectMake(CGRectGetMinX(_contentView.frame), (SCREEN_HEIGHT - contentHeight) / 2, CGRectGetWidth(_contentView.frame), contentHeight);
+    
+    // center view
+    CGFloat centerHeight = (_inputFieldArray && _inputFieldArray.count > 0 ? (kInputHeight + 1.0f) * _inputFieldArray.count + 20.0f : 0) + (_components & MSAlertViewComponentContent ? CGRectGetHeight(_contentTextView.frame) : 0);
+    _centerView.frame = CGRectMake(CGRectGetMinX(_centerView.frame), CGRectGetMinY(_centerView.frame), CGRectGetWidth(_centerView.frame), centerHeight);
+    
+    // bottom button view
+    _bottomView.frame = CGRectMake(CGRectGetMinX(_bottomView.frame), CGRectGetMaxY(_centerView.frame), CGRectGetWidth(_bottomView.frame), CGRectGetHeight(_bottomView.frame));
+}
+
 - (void)show {
     
     CGRect frame = _contentView.frame;
@@ -148,8 +179,9 @@ static const CGFloat kButtonHeight = 32.0f;
     
     _components      = 0;
     _hasCancelButton = NO;
-    _buttonModels    = [[NSMutableArray alloc] init];
-    _inputModels     = [[NSMutableArray alloc] init];
+    _buttonModels    = [NSMutableArray array];
+    _inputModels     = [NSMutableArray array];
+    _inputFieldArray = [NSMutableArray array];
 }
 
 - (void)initializeUI {
@@ -266,10 +298,10 @@ static const CGFloat kButtonHeight = 32.0f;
         height += _titleView ? CGRectGetHeight(_titleView.frame) : kTitleHeight;
     }
     if ( _components & MSAlertViewComponentContent) {
-        height += _centerView ? CGRectGetHeight(_centerView.frame) : 0;
+        height += _centerView ? CGRectGetHeight(_contentTextView.frame) : 0;
     }
     if ( _components & MSAlertViewComponentInput) {
-        height += _inputModels ? _inputModels.count * kInputHeight : 0;
+        height += _inputModels && _inputModels.count > 0 ? _inputModels.count * (kInputHeight + 1.0f) + 20.0f : 0;
     }
     if ( _components & MSAlertViewComponentButton) {
         height += _buttonModels && _buttonModels.count > 0 ? kButtonHeight : 0;
@@ -279,10 +311,18 @@ static const CGFloat kButtonHeight = 32.0f;
 
 - (void)bottomButtonPressed:(UIButton *)sender {
     
-    if ( self.delegate && [self.delegate respondsToSelector:@selector(alertView:didPressedOnButton:)]) {
-        [self.delegate performSelector:@selector(alertView:didPressedOnButton:) withObject:self withObject:@{}];
+    if ( _hasCancelButton && sender.tag == 0) {
+        [self hide];
+        return;
     }
     
+    if ( self.delegate && [self.delegate respondsToSelector:@selector(alertView:buttonPressedAtIndex:withInputValues:)]) {
+        NSMutableArray *inputValues = [NSMutableArray array];
+        for (MSAlertInputField *inputField in _inputFieldArray) {
+            [inputValues addObject:inputField.text];
+        }
+        [self.delegate alertView:self buttonPressedAtIndex:sender.tag withInputValues:[inputValues copy]];
+    }
     [self hide];
 }
 

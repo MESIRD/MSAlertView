@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "MSAlertViewHeader.h"
 
-@interface ViewController () <MSAlertViewDelegate>
+@interface ViewController () <MSAlertViewDelegate, UITextFieldDelegate>
 
 @end
 
@@ -20,11 +20,28 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     CGSize screenSize = [UIScreen mainScreen].bounds.size;
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 20, screenSize.width, 100)];
-    button.backgroundColor = [UIColor colorWithWhite:0.3f alpha:1.0f];
-    [button setTitle:@"Alert!" forState:UIControlStateNormal];
-    [button addTarget:self action:@selector(tapOnButton:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:button];
+    
+    UIButton *button1 = [[UIButton alloc] initWithFrame:CGRectMake(0, 20, screenSize.width, 100)];
+    button1.tag = 1;
+    button1.backgroundColor = [UIColor colorWithWhite:0.1f alpha:1.0f];
+    [button1 setTitle:@"Alert With No Button" forState:UIControlStateNormal];
+    [button1 addTarget:self action:@selector(tapOnButton:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:button1];
+    
+    
+    UIButton *button2 = [[UIButton alloc] initWithFrame:CGRectMake(0, 120, screenSize.width, 100)];
+    button2.tag = 2;
+    button2.backgroundColor = [UIColor colorWithWhite:0.2f alpha:1.0f];
+    [button2 setTitle:@"Alert With Cancel Button" forState:UIControlStateNormal];
+    [button2 addTarget:self action:@selector(tapOnButton:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:button2];
+    
+    UIButton *button3 = [[UIButton alloc] initWithFrame:CGRectMake(0, 220, screenSize.width, 100)];
+    button3.tag = 3;
+    button3.backgroundColor = [UIColor colorWithWhite:0.3f alpha:1.0f];
+    [button3 setTitle:@"Alert With Input Fields" forState:UIControlStateNormal];
+    [button3 addTarget:self action:@selector(tapOnButton:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:button3];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -34,13 +51,36 @@
 
 - (void)tapOnButton:(UIButton *)sender {
     
-    MSAlertView *alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph" cancelButtonTitle:nil otherButtonTitles:nil];
-    [alertView show];
+    if ( sender.tag == 1) {
+        MSAlertView *alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph" cancelButtonTitle:nil otherButtonTitles:nil];
+        [alertView show];
+    } else if ( sender.tag == 2) {
+        MSAlertView *alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph" cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+        [alertView show];
+    } else if ( sender.tag == 3) {
+        MSAlertView *alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph" cancelButtonTitle:@"Cancel" otherButtonTitles:@"Submit", nil];
+        [alertView appendInputWithPlaceholder:@"account" delegate:self];
+//        [alertView appendInputWithPlaceholder:@"password" delegate:self];
+        [alertView show];
+    }
+    
 }
 
 #pragma mark - MS Alert View Delegate
-- (void)alertView:(MSAlertView *)alertView didPressedOnButton:(NSDictionary *)userInfo {
-    NSLog(@"pressed!");
+
+- (void)alertView:(MSAlertView *)alertView buttonPressedAtIndex:(NSInteger)index withInputValues:(NSArray *)inputValues {
+    
+    
+}
+
+#pragma mark - UITextFieldDelegate
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    
+    if ( [textField canResignFirstResponder]) {
+        [textField resignFirstResponder];
+    }
+    return NO;
 }
 
 @end

@@ -14,4 +14,6 @@
 @property (nonatomic, copy) NSString *inputValue;
 @property (nonatomic, copy) NSString *inputKey;
 
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
+
 @end

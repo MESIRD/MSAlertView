@@ -14,7 +14,9 @@
     
     if ( self = [super initWithFrame:frame]) {
         
-        self.attributedPlaceholder = [[NSAttributedString alloc] initWithString:placeholder attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.0f], NSForegroundColorAttributeName:[UIColor colorWithRed:228.0f green:228.0f blue:228.0f alpha:1.0f]}];
+        if ( placeholder && ![placeholder isEqualToString:@""]) {
+            self.attributedPlaceholder = [[NSAttributedString alloc] initWithString:placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRed:228.0f green:228.0f blue:228.0f alpha:1.0f], NSFontAttributeName:[UIFont systemFontOfSize:12.0f]}];
+        }
         self.borderStyle = UITextBorderStyleNone;
         self.backgroundColor = COLOR_OF_RGBA(249.0f, 249.0f, 249.0f, 1.0f);
         self.font = [UIFont systemFontOfSize:12.0f];
