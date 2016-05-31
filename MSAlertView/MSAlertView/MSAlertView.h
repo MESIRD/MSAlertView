@@ -24,8 +24,15 @@
 
 - (instancetype)initWithDelegate:(id<MSAlertViewDelegate>)delegate title:(NSString *)title content:(NSString *)content cancelButtonTitle:(NSString *)cancelButtonTitle otherButtonTitles:(NSString *)otherButtonTitles, ... NS_REQUIRES_NIL_TERMINATION;
 
-- (MSAlertInputField *)appendInputWithPlaceholder:(NSString *)placeholder delegate:(id)delegate;
+- (MSAlertInputField *)appendInputWithPlaceholder:(NSString *)placeholder delegate:(id)delegate encrypted:(BOOL)encrypted;
+
+- (void)setAlertAdditionalMessage:(NSString *)message;
 
 - (void)show;
+- (void)hide;
+- (void)errorShake;
+
+- (NSInteger)indexOfInputField:(UITextField *)inputField;
+- (UITextField *)inputFieldOfIndex:(NSInteger)index;
 
 @end

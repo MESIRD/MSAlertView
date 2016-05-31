@@ -11,6 +11,8 @@
 
 @interface ViewController () <MSAlertViewDelegate, UITextFieldDelegate>
 
+@property (nonatomic, strong) MSAlertView *alertView;
+
 @end
 
 @implementation ViewController
@@ -52,35 +54,51 @@
 - (void)tapOnButton:(UIButton *)sender {
     
     if ( sender.tag == 1) {
-        MSAlertView *alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph" cancelButtonTitle:nil otherButtonTitles:nil];
-        [alertView show];
+         _alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph" cancelButtonTitle:nil otherButtonTitles:nil];
+        [_alertView show];
     } else if ( sender.tag == 2) {
-        MSAlertView *alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph" cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
-        [alertView show];
+        _alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph" cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+        [_alertView show];
     } else if ( sender.tag == 3) {
-        MSAlertView *alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph" cancelButtonTitle:@"Cancel" otherButtonTitles:@"Submit", nil];
-        [alertView appendInputWithPlaceholder:@"account" delegate:self];
-//        [alertView appendInputWithPlaceholder:@"password" delegate:self];
-        [alertView show];
+        _alertView = [[MSAlertView alloc] initWithDelegate:self title:@"Information" content:@"This is a simple paragraph with a very long and nonsense words in it!!!" cancelButtonTitle:@"Cancel" otherButtonTitles:@"Submit", nil];
+        [_alertView appendInputWithPlaceholder:@"account"  delegate:self encrypted:NO];
+        [_alertView appendInputWithPlaceholder:@"password" delegate:self encrypted:YES];
+        [_alertView show];
     }
-    
 }
 
 #pragma mark - MS Alert View Delegate
 
 - (void)alertView:(MSAlertView *)alertView buttonPressedAtIndex:(NSInteger)index withInputValues:(NSArray *)inputValues {
     
+    if ( index != 0 && ![inputValues[1] isEqualToString:@"123"]) {
+        [alertView setAlertAdditionalMessage:@"wrong password"];
+        [alertView errorShake];
+        return;
+    }
     
+    [alertView hide];
 }
 
 #pragma mark - UITextFieldDelegate
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     
-    if ( [textField canResignFirstResponder]) {
-        [textField resignFirstResponder];
+    if ( [string isEqualToString:@"\n"]) {
+        NSInteger index = [_alertView indexOfInputField:textField];
+        if ( index == 1) {
+            if ( [textField canResignFirstResponder]) {
+                [textField resignFirstResponder];
+            }
+        } else {
+            UITextField *nextTextField = [_alertView inputFieldOfIndex:index + 1];
+            if ( [nextTextField canBecomeFirstResponder]) {
+                [nextTextField becomeFirstResponder];
+            }
+        }
+        return NO;
     }
-    return NO;
+    return YES;
 }
 
 @end

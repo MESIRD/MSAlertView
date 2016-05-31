@@ -15,7 +15,8 @@ typedef NS_OPTIONS(NSInteger, MSAlertViewComponent) {
     MSAlertViewComponentTitle   = 1 << 0,
     MSAlertViewComponentContent = 1 << 1,
     MSAlertViewComponentInput   = 1 << 2,
-    MSAlertViewComponentButton  = 1 << 3
+    MSAlertViewComponentButton  = 1 << 3,
+    MSAlertViewComponentMessage = 1 << 4
 };
 
 @interface MSAlertView()
@@ -24,9 +25,10 @@ typedef NS_OPTIONS(NSInteger, MSAlertViewComponent) {
 @property (nonatomic, strong) UIView  *titleView;
 @property (nonatomic, strong) UILabel *titleLabel;
 
-@property (nonatomic, strong) UIView                              *centerView;
-@property (nonatomic, strong) UITextView                          *contentTextView;
+@property (nonatomic, strong) UIView        *centerView;
+@property (nonatomic, strong) UITextView    *contentTextView;
 @property (nonatomic, strong) NSMutableArray<MSAlertInputField *> *inputFieldArray;
+@property (nonatomic, strong) UILabel       *messageLabel;
 
 @property (nonatomic, strong) UIView         *bottomView;
 @property (nonatomic, strong) NSMutableArray *buttonArray;
@@ -39,6 +41,7 @@ typedef NS_OPTIONS(NSInteger, MSAlertViewComponent) {
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *content;
 @property (nonatomic, strong) NSMutableArray<MSAlertInputModel *>  *inputModels;
+@property (nonatomic, strong) NSString *message;
 @property (nonatomic, strong) NSMutableArray<MSAlertButtonModel *> *buttonModels;
 
 // data control
@@ -54,9 +57,11 @@ static const NSTimeInterval kAnimationTimeInterval = 0.3f;
 static const CGFloat kLeftMargin   = 30.0f;
 static const CGFloat kRightMargin  = kLeftMargin;
 
-static const CGFloat kTitleHeight  = 30.0f;
-static const CGFloat kInputHeight  = 24.0f;
-static const CGFloat kButtonHeight = 32.0f;
+static const CGFloat kTitleHeight         = 40.0f;
+static const CGFloat kInputHeight         = 30.0f;
+static const CGFloat kMessageHeight       = 20.0f;
+static const CGFloat kButtonHeight        = 45.0f;
+static const CGFloat kCenterBottomPadding = 20.0f;
 
 
 #pragma mark - Class Initalization
@@ -111,35 +116,59 @@ static const CGFloat kButtonHeight = 32.0f;
     return self;
 }
 
-- (MSAlertInputField *)appendInputWithPlaceholder:(NSString *)placeholder delegate:(id)delegate {
+- (MSAlertInputField *)appendInputWithPlaceholder:(NSString *)placeholder delegate:(id)delegate encrypted:(BOOL)encrypted {
     
     CGFloat originY = _inputFieldArray && _inputFieldArray.count > 0 ? CGRectGetMaxY(_inputFieldArray[_inputFieldArray.count-1].frame) + 1.0f : (_components & MSAlertViewComponentContent ? CGRectGetMaxY(_contentTextView.frame) : CGRectGetMinY(_centerView.frame));
     MSAlertInputField *inputField = [[MSAlertInputField alloc] initWithFrame:CGRectMake(0, originY, CGRectGetWidth(_contentView.frame), kInputHeight) andPlaceholder:placeholder];
     if ( delegate) {
         inputField.delegate = delegate;
     }
+    inputField.secureTextEntry = encrypted;
     [_inputModels addObject:[[MSAlertInputModel alloc] initWithDictionary:@{@"placeholder":placeholder}]];
     [_inputFieldArray addObject:inputField];
     [_centerView addSubview:inputField];
     _components |= MSAlertViewComponentInput;
     
-    [self resizeUIAfterAppendingInputField];
+    [self resizeUI];
     
     return inputField;
 }
 
-- (void)resizeUIAfterAppendingInputField {
+- (void)resizeUI {
     
     // content view
     CGFloat contentHeight = [self getContentHeight];
     _contentView.frame = CGRectMake(CGRectGetMinX(_contentView.frame), (SCREEN_HEIGHT - contentHeight) / 2, CGRectGetWidth(_contentView.frame), contentHeight);
     
     // center view
-    CGFloat centerHeight = (_inputFieldArray && _inputFieldArray.count > 0 ? (kInputHeight + 1.0f) * _inputFieldArray.count + 20.0f : 0) + (_components & MSAlertViewComponentContent ? CGRectGetHeight(_contentTextView.frame) : 0);
+    CGFloat centerHeight = (_inputFieldArray && _inputFieldArray.count > 0 ? (kInputHeight + 1.0f) * _inputFieldArray.count : 0) + (_components & MSAlertViewComponentContent ? CGRectGetHeight(_contentTextView.frame) : 0) + (_message && ![_message isEqualToString:@""] ? kMessageHeight : 0) + kCenterBottomPadding;
     _centerView.frame = CGRectMake(CGRectGetMinX(_centerView.frame), CGRectGetMinY(_centerView.frame), CGRectGetWidth(_centerView.frame), centerHeight);
     
     // bottom button view
     _bottomView.frame = CGRectMake(CGRectGetMinX(_bottomView.frame), CGRectGetMaxY(_centerView.frame), CGRectGetWidth(_bottomView.frame), CGRectGetHeight(_bottomView.frame));
+}
+
+- (void)setAlertAdditionalMessage:(NSString *)message {
+    
+    _message = message;
+    if ( message && ![message isEqualToString:@""]) {
+        _components |= MSAlertViewComponentMessage;
+        if ( !_messageLabel) {
+            CGFloat originY = _inputModels && _inputModels.count > 0 ? CGRectGetMaxY(_inputFieldArray[_inputFieldArray.count - 1].frame) : CGRectGetMaxY(_contentTextView.frame);
+            _messageLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, originY, CGRectGetWidth(_contentView.frame), kMessageHeight)];
+            _messageLabel.text = _message;
+            _messageLabel.textAlignment = NSTextAlignmentCenter;
+            _messageLabel.font = [UIFont systemFontOfSize:12.0f];
+            _messageLabel.textColor = [UIColor redColor];
+            [_centerView addSubview:_messageLabel];
+        }
+        _messageLabel.hidden = NO;
+    } else {
+//        _components &= MSAlertViewComponentMessage;
+        _messageLabel.hidden = YES;
+    }
+    
+    [self resizeUI];
 }
 
 - (void)show {
@@ -165,7 +194,6 @@ static const CGFloat kButtonHeight = 32.0f;
 - (void)hide {
     
     CGRect frame = _contentView.frame;
-    
     [UIView animateWithDuration:kAnimationTimeInterval animations:^{
         _maskView.layer.opacity = 0.0f;
         _contentView.frame = CGRectMake((CGRectGetMinX(frame) + CGRectGetMaxX(frame))/2, (CGRectGetMinY(frame) + CGRectGetMaxY(frame))/2, 0, 0);
@@ -174,6 +202,40 @@ static const CGFloat kButtonHeight = 32.0f;
     }];
 }
 
+- (void)errorShake {
+    
+    [UIView animateWithDuration:0.1 animations:^{
+        _contentView.frame = CGRectMake(CGRectGetMinX(_contentView.frame) + 50.0f, CGRectGetMinY(_contentView.frame), CGRectGetWidth(_contentView.frame), CGRectGetHeight(_contentView.frame));
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.1 animations:^{
+            _contentView.frame = CGRectMake(CGRectGetMinX(_contentView.frame) - 100.0f, CGRectGetMinY(_contentView.frame), CGRectGetWidth(_contentView.frame), CGRectGetHeight(_contentView.frame));
+        } completion:^(BOOL finished) {
+            [UIView animateWithDuration:0.1 animations:^{
+                _contentView.frame = CGRectMake(CGRectGetMinX(_contentView.frame) + 50.0f, CGRectGetMinY(_contentView.frame), CGRectGetWidth(_contentView.frame), CGRectGetHeight(_contentView.frame));
+            } completion:^(BOOL finished) {
+                
+            }];
+        }];
+    }];
+}
+
+- (NSInteger)indexOfInputField:(UITextField *)inputField {
+    
+    for (int i = 0; i < _inputFieldArray.count; i ++) {
+        if ( [inputField isEqual:_inputFieldArray[i]]) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+- (UITextField *)inputFieldOfIndex:(NSInteger)index {
+    
+    if ( index > _inputFieldArray.count - 1) {
+        return nil;
+    }
+    return _inputFieldArray[index];
+}
 
 - (void)initializeParameters {
     
@@ -223,7 +285,7 @@ static const CGFloat kButtonHeight = 32.0f;
             _titleLabel.text = _title;
             _titleLabel.textAlignment = NSTextAlignmentCenter;
             _titleLabel.textColor = COLOR_OF_RGBA(111.0f, 111.0f, 111.0f, 1.0f);
-            _titleLabel.font = [UIFont boldSystemFontOfSize:14.0f];
+            _titleLabel.font = [UIFont boldSystemFontOfSize:18.0f];
             [_titleView addSubview:_titleLabel];
         }
     }
@@ -237,10 +299,11 @@ static const CGFloat kButtonHeight = 32.0f;
         if ( !_contentTextView) {
             CGFloat contentTextHeight = [_content boundingRectWithSize:CGSizeMake(contentWidth, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.0f]} context:nil].size.height;
             _contentTextView = [[UITextView alloc] initWithFrame:CGRectMake(0, 0, contentWidth, contentTextHeight + 20.0f)];
+            _contentTextView.userInteractionEnabled = NO;
             _contentTextView.text = _content;
             _contentTextView.textColor = COLOR_OF_RGBA(128.0f, 128.0f, 128.0f, 1.0f);
             _contentTextView.textAlignment = NSTextAlignmentCenter;
-            _contentTextView.font = [UIFont systemFontOfSize:12.0f];
+            _contentTextView.font = [UIFont systemFontOfSize:14.0f];
             [_centerView addSubview:_contentTextView];
         }
     }
@@ -256,7 +319,21 @@ static const CGFloat kButtonHeight = 32.0f;
             }];
         }
     }
-    _centerView.frame = CGRectMake(0, CGRectGetMaxY(_titleView.frame), contentWidth, CGRectGetHeight(_contentTextView.frame) + (_inputModels.count * (kInputHeight + 1.0f)) + 10.0f);
+    
+    if ( _components & MSAlertViewComponentMessage) {
+        if ( !_messageLabel) {
+            _messageLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_centerView.frame) - kMessageHeight, contentWidth, kMessageHeight)];
+            _messageLabel.text = _message;
+            _messageLabel.textAlignment = NSTextAlignmentCenter;
+            _messageLabel.font = [UIFont systemFontOfSize:12.0f];
+            _messageLabel.textColor = [UIColor redColor];
+            [_centerView addSubview:_messageLabel];
+        }
+    }
+    CGFloat contentTextHeight = CGRectGetHeight(_contentTextView.frame);
+    CGFloat inputsHeight      = _inputModels.count > 0 ? _inputModels.count * (kInputHeight + 1.0f) : 0;
+    CGFloat messageHeight     = _message && ![_message isEqualToString:@""] ? CGRectGetHeight(_messageLabel.frame) : 0;
+    _centerView.frame         = CGRectMake(0, CGRectGetMaxY(_titleView.frame), contentWidth, contentTextHeight + inputsHeight + messageHeight + kCenterBottomPadding);
     
     if ( _components & MSAlertViewComponentButton) {
         if ( !_bottomView) {
@@ -266,7 +343,7 @@ static const CGFloat kButtonHeight = 32.0f;
         if ( !_buttonArray || _buttonArray.count < _buttonModels.count) {
             CGFloat buttonWidth = contentWidth / _buttonModels.count;
             [_buttonModels enumerateObjectsUsingBlock:^(MSAlertButtonModel * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                NSAttributedString *attributedTitle = [[NSAttributedString alloc] initWithString:[_buttonModels[idx] title] attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.0f], NSForegroundColorAttributeName:[UIColor whiteColor]}];
+                NSAttributedString *attributedTitle = [[NSAttributedString alloc] initWithString:[_buttonModels[idx] title] attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f], NSForegroundColorAttributeName:[UIColor whiteColor]}];
                 UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(idx * buttonWidth, 0, buttonWidth, kButtonHeight)];
                 [button setTag:idx];
                 [button setAttributedTitle:attributedTitle forState:UIControlStateNormal];
@@ -298,11 +375,15 @@ static const CGFloat kButtonHeight = 32.0f;
         height += _titleView ? CGRectGetHeight(_titleView.frame) : kTitleHeight;
     }
     if ( _components & MSAlertViewComponentContent) {
-        height += _centerView ? CGRectGetHeight(_contentTextView.frame) : 0;
+        height += _contentTextView ? CGRectGetHeight(_contentTextView.frame) : 0;
     }
     if ( _components & MSAlertViewComponentInput) {
-        height += _inputModels && _inputModels.count > 0 ? _inputModels.count * (kInputHeight + 1.0f) + 20.0f : 0;
+        height += _inputModels && _inputModels.count > 0 ? _inputModels.count * (kInputHeight + 1.0f) : 0;
     }
+    if ( _components & MSAlertViewComponentMessage) {
+        height += _message && ![_message isEqualToString:@""] ? CGRectGetHeight(_messageLabel.frame) : 0;
+    }
+    height += kCenterBottomPadding;
     if ( _components & MSAlertViewComponentButton) {
         height += _buttonModels && _buttonModels.count > 0 ? kButtonHeight : 0;
     }
@@ -323,7 +404,6 @@ static const CGFloat kButtonHeight = 32.0f;
         }
         [self.delegate alertView:self buttonPressedAtIndex:sender.tag withInputValues:[inputValues copy]];
     }
-    [self hide];
 }
 
 @end
